@@ -2,5 +2,16 @@
   "buildCommand": "npm run build",
   "framework": "nextjs",
   "installCommand": "npm install",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "env": {
+    "DATABASE_URL": "postgresql://postgres.xjhkgvbwamquexozvyzq:Ibuki89662@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres",
+    "JWT_SECRET": "gaiheki-production-jwt-secret-key-2024",
+    "JWT_EXPIRES_IN": "24h",
+    "BCRYPT_SALT_ROUNDS": "12",
+    "DEFAULT_ADMIN_EMAIL": "admin@gaiheki.com",
+    "DEFAULT_ADMIN_USERNAME": "admin",
+    "DEFAULT_ADMIN_PASSWORD": "admin123",
+    "NEXTAUTH_SECRET": "gaiheki-nextauth-secret-2024",
+    "NODE_ENV": "production"
+  }
 }
