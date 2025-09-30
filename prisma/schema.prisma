@@ -1,0 +1,412 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id                           Int                            @id @default(autoincrement())
+  username                     String                         @unique @db.VarChar(50)
+  email                        String                         @unique @db.VarChar(100)
+  passwordHash                 String                         @map("password_hash") @db.VarChar(255)
+  role                         AdminRole                      @default(ADMIN)
+  isActive                     Boolean                        @default(true) @map("is_active")
+  lastLoginAt                  DateTime?                      @map("last_login_at")
+  createdAt                    DateTime                       @default(now()) @map("created_at")
+  updatedAt                    DateTime                       @updatedAt @map("updated_at")
+  sessions                     AdminSession[]
+  application_status_histories application_status_histories[]
+  articles                     articles[]
+  partner_applications         partner_applications[]
+
+  @@map("admins")
+}
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  adminId   Int      @map("admin_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([expiresAt])
+  @@map("admin_sessions")
+}
+
+model application_status_histories {
+  id                   Int                  @id @default(autoincrement())
+  application_id       Int
+  previous_status      ApplicationStatus?
+  new_status           ApplicationStatus
+  changed_by           Int
+  change_reason        String?
+  created_at           DateTime             @default(now())
+  partner_applications partner_applications @relation(fields: [application_id], references: [id], onDelete: Cascade)
+  admins               Admin                @relation(fields: [changed_by], references: [id])
+
+  @@index([application_id])
+}
+
+model articles {
+  id              Int             @id @default(autoincrement())
+  admin_id        Int
+  title           String          @db.VarChar(255)
+  thumbnail_image String?         @db.VarChar(500)
+  category        ArticleCategory
+  content         String
+  is_published    Boolean         @default(false)
+  sort_order      Int             @default(0)
+  post_name       String          @db.VarChar(100)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime
+  admins          Admin           @relation(fields: [admin_id], references: [id])
+
+  @@index([admin_id])
+  @@index([category])
+  @@index([is_published])
+}
+
+model customers {
+  id                         Int                  @id @default(autoincrement())
+  partner_id                 Int?
+  customer_name              String               @db.VarChar(100)
+  customer_phone             String               @db.VarChar(20)
+  customer_email             String               @db.VarChar(255)
+  construction_address       String               @db.VarChar(500)
+  customer_construction_type ConstructionType
+  construction_amount        Int
+  construction_completed_at  DateTime?
+  customer_status            CustomerStatus       @default(ORDERED)
+  customer_completion_date   DateTime?
+  customer_rating            Int?
+  customer_review_title      String?              @db.VarChar(255)
+  customer_review            String?
+  customer_review_date       DateTime?
+  customer_comment           String?
+  review_token               String?              @unique @db.VarChar(255)
+  review_token_expires_at    DateTime?
+  created_at                 DateTime             @default(now())
+  updated_at                 DateTime
+  partners                   partners?            @relation(fields: [partner_id], references: [id])
+  diagnosis_requests         diagnosis_requests[]
+  inquiries                  inquiries[]
+
+  @@index([customer_status])
+  @@index([partner_id])
+}
+
+model diagnosis_requests {
+  id                   Int              @id @default(autoincrement())
+  diagnosis_code       String?          @unique @db.VarChar(10)
+  customer_id          Int
+  preferred_partner_id Int?
+  prefecture           Prefecture
+  floor_area           FloorArea
+  current_situation    CurrentSituation
+  construction_type    ConstructionType
+  status               DiagnosisStatus  @default(RECRUITING)
+  created_at           DateTime         @default(now())
+  updated_at           DateTime
+  customers            customers        @relation(fields: [customer_id], references: [id])
+  partners             partners?        @relation(fields: [preferred_partner_id], references: [id])
+  quotations           quotations[]
+
+  @@index([customer_id])
+  @@index([preferred_partner_id])
+  @@index([status])
+}
+
+model inquiries {
+  id              Int           @id @default(autoincrement())
+  customer_id     Int
+  subject         String        @db.VarChar(255)
+  inquiry_content String
+  inquiry_status  InquiryStatus @default(PENDING)
+  admin_memo      String?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  customers       customers     @relation(fields: [customer_id], references: [id])
+
+  @@index([customer_id])
+  @@index([inquiry_status])
+}
+
+model orders {
+  id                      Int         @id @default(autoincrement())
+  quotation_id            Int         @unique
+  partner_memo            String?
+  admin_memo              String?
+  construction_start_date DateTime?
+  construction_end_date   DateTime?
+  order_status            OrderStatus @default(ORDERED)
+  order_date              DateTime    @default(now())
+  completion_date         DateTime?
+  created_at              DateTime    @default(now())
+  updated_at              DateTime
+  quotations              quotations  @relation(fields: [quotation_id], references: [id])
+
+  @@index([order_status])
+}
+
+model partner_application_prefectures {
+  id                   Int                  @id @default(autoincrement())
+  application_id       Int
+  supported_prefecture Prefecture
+  created_at           DateTime             @default(now())
+  partner_applications partner_applications @relation(fields: [application_id], references: [id], onDelete: Cascade)
+
+  @@unique([application_id, supported_prefecture])
+}
+
+model partner_applications {
+  id                              Int                               @id @default(autoincrement())
+  company_name                    String                            @db.VarChar(255)
+  representative_name             String                            @db.VarChar(100)
+  address                         String                            @db.VarChar(500)
+  phone_number                    String                            @db.VarChar(20)
+  email                           String                            @db.VarChar(255)
+  website_url                     String?                           @db.VarChar(500)
+  business_description            String
+  self_pr                         String
+  application_status              ApplicationStatus                 @default(UNDER_REVIEW)
+  admin_memo                      String?
+  review_notes                    String?
+  reviewed_by                     Int?
+  reviewed_at                     DateTime?
+  created_at                      DateTime                          @default(now())
+  updated_at                      DateTime
+  application_status_histories    application_status_histories[]
+  partner_application_prefectures partner_application_prefectures[]
+  admins                          Admin?                            @relation(fields: [reviewed_by], references: [id])
+
+  @@index([application_status])
+}
+
+model partner_details {
+  id                      Int           @id @default(autoincrement())
+  partner_id              Int           @unique
+  company_name            String        @db.VarChar(255)
+  phone_number            String        @db.VarChar(20)
+  address                 String        @db.VarChar(500)
+  representative_name     String        @db.VarChar(100)
+  fax_number              String?       @db.VarChar(20)
+  website_url             String?       @db.VarChar(500)
+  business_description    String
+  appeal_text             String
+  business_hours          String?       @db.VarChar(255)
+  closed_days             String?       @db.VarChar(255)
+  site_reprint_prefecture Prefecture?
+  partners_status         PartnerStatus @default(INACTIVE)
+  price_range_min         Int?
+  price_range_max         Int?
+  average_price           Int?
+  total_rating            Decimal?      @db.Decimal(2, 1)
+  review_count            Int?          @default(0)
+  completed_count         Int?          @default(0)
+  created_at              DateTime      @default(now())
+  updated_at              DateTime
+  partners                partners      @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+}
+
+model partner_prefectures {
+  id                   Int        @id @default(autoincrement())
+  partner_id           Int
+  supported_prefecture Prefecture
+  created_at           DateTime   @default(now())
+  updated_at           DateTime
+  partners             partners   @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+
+  @@unique([partner_id, supported_prefecture])
+}
+
+model partners {
+  id                     Int                      @id @default(autoincrement())
+  username               String                   @unique @db.VarChar(100)
+  login_email            String                   @unique @db.VarChar(255)
+  password_hash          String                   @db.VarChar(255)
+  is_active              Boolean                  @default(true)
+  last_login_at          DateTime?
+  created_at             DateTime                 @default(now())
+  updated_at             DateTime
+  customers              customers[]
+  diagnosis_requests     diagnosis_requests[]
+  partner_details        partner_details?
+  partner_prefectures    partner_prefectures[]
+  quotations             quotations[]
+}
+
+model quotations {
+  id                   Int                @id @default(autoincrement())
+  diagnosis_request_id Int
+  partner_id           Int
+  quotation_amount     Int
+  appeal_text          String?
+  is_selected          Boolean            @default(false)
+  created_at           DateTime           @default(now())
+  updated_at           DateTime
+  orders               orders?
+  diagnosis_requests   diagnosis_requests @relation(fields: [diagnosis_request_id], references: [id])
+  partners             partners           @relation(fields: [partner_id], references: [id])
+
+  @@unique([diagnosis_request_id, partner_id])
+  @@index([diagnosis_request_id])
+  @@index([partner_id])
+}
+
+model columns {
+  id            Int      @id @default(autoincrement())
+  title         String   @db.VarChar(255)
+  slug          String   @unique @db.VarChar(255)
+  category      String   @db.VarChar(100)
+  content       String   @db.Text
+  thumbnail_url String?  @db.VarChar(500)
+  status        String   @default("draft") @db.VarChar(50)
+  views         Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  OPERATOR
+}
+
+enum ApplicationStatus {
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum ArticleCategory {
+  BASIC_KNOWLEDGE
+  PAINT_TYPES
+  CASE_STUDIES
+  MAINTENANCE
+  CONTRACTOR_SELECTION
+  COST_ESTIMATE
+  TROUBLESHOOTING
+  SEASONAL_WEATHER
+}
+
+enum ConstructionType {
+  EXTERIOR_PAINTING
+  ROOF_PAINTING
+  EXTERIOR_AND_ROOF
+  PARTIAL_REPAIR
+  WATERPROOFING
+  SIDING_REPLACEMENT
+  FULL_REPLACEMENT
+}
+
+enum CurrentSituation {
+  MARKET_RESEARCH
+  CONSIDERING_CONSTRUCTION
+  COMPARING_CONTRACTORS
+  READY_TO_ORDER
+  CONSTRUCTION_COMPLETED
+}
+
+enum CustomerStatus {
+  ORDERED
+  IN_PROGRESS
+  COMPLETED
+  REVIEW_COMPLETED
+  CANCELLED
+}
+
+enum DiagnosisStatus {
+  DESIGNATED
+  RECRUITING
+  COMPARING
+  DECIDED
+  CANCELLED
+}
+
+enum FloorArea {
+  UNKNOWN
+  UNDER_80
+  FROM_80_TO_100
+  FROM_101_TO_120
+  FROM_121_TO_140
+  FROM_141_TO_160
+  FROM_161_TO_180
+  FROM_181_TO_200
+  FROM_201_TO_250
+  FROM_251_TO_300
+  FROM_301_TO_500
+  OVER_501
+}
+
+enum InquiryStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum OrderStatus {
+  ORDERED
+  IN_PROGRESS
+  COMPLETED
+  REVIEW_COMPLETED
+  CANCELLED
+}
+
+enum PartnerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Prefecture {
+  Hokkaido
+  Aomori
+  Iwate
+  Miyagi
+  Akita
+  Yamagata
+  Fukushima
+  Ibaraki
+  Tochigi
+  Gunma
+  Saitama
+  Chiba
+  Tokyo
+  Kanagawa
+  Niigata
+  Toyama
+  Ishikawa
+  Fukui
+  Yamanashi
+  Nagano
+  Gifu
+  Shizuoka
+  Aichi
+  Mie
+  Shiga
+  Kyoto
+  Osaka
+  Hyogo
+  Nara
+  Wakayama
+  Tottori
+  Shimane
+  Okayama
+  Hiroshima
+  Yamaguchi
+  Tokushima
+  Kagawa
+  Ehime
+  Kochi
+  Fukuoka
+  Saga
+  Nagasaki
+  Kumamoto
+  Oita
+  Miyazaki
+  Kagoshima
+  Okinawa
+}
