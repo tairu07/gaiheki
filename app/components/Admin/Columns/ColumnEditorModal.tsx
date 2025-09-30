@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useRef } from 'react';
-import { X, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Type, Palette, Image, Save, Eye, Maximize2, Upload } from 'lucide-react';
+import { X, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Type, Palette, Save, Eye, Maximize2, Upload } from 'lucide-react';
 
 interface ColumnEditorModalProps {
   isOpen: boolean;

@@ -26,7 +26,7 @@ export async function GET() {
       success: true,
       ...connectionInfo
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Database connection error:', error);
 
     return NextResponse.json({
