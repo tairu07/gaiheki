@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" next build",
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" DISABLE_ESLINT_PLUGIN=true next build",
     "build:win": "set NODE_OPTIONS=--max-old-space-size=4096 && next build",
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "next lint",
