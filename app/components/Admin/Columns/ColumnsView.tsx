@@ -17,12 +17,12 @@ const categories = [
 ];
 
 export default function ColumnsView() {
-  const [columns, setColumns] = useState([]);
+  const [columns, setColumns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState('すべて');
   const [statusFilter, setStatusFilter] = useState('すべて');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedColumn, setSelectedColumn] = useState(null);
+  const [selectedColumn, setSelectedColumn] = useState<unknown>(null);
 
   useEffect(() => {
     fetchColumns();
@@ -56,7 +56,7 @@ export default function ColumnsView() {
     }
   };
 
-  const handleEdit = (column) => {
+  const handleEdit = (column: unknown) => {
     setSelectedColumn(column);
     setIsModalOpen(true);
   };
@@ -66,7 +66,7 @@ export default function ColumnsView() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('このコラムを削除してもよろしいですか？')) return;
 
     try {
@@ -90,7 +90,7 @@ export default function ColumnsView() {
     }
   };
 
-  const handleToggleStatus = async (column) => {
+  const handleToggleStatus = async (column: { id: number; status: string }) => {
     const newStatus = column.status === '表示' ? '非表示' : '表示';
 
     try {

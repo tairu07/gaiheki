@@ -9,6 +9,7 @@ interface ApplicationModalProps {
     id?: number;
     companyName?: string;
     companyNameKana?: string;
+    representative?: string;
     postalCode?: string;
     prefecture?: string;
     city?: string;
@@ -28,6 +29,8 @@ interface ApplicationModalProps {
     serviceAreas?: string[];
     priceRange?: string;
     strength?: string;
+    businessHours?: string;
+    closedDays?: string;
     availableDates?: string;
     desiredPrice?: string;
     notes?: string;
@@ -50,7 +53,7 @@ export default function ApplicationModal({
   if (!isOpen || !application) return null;
 
   const handleStatusChange = () => {
-    if (onStatusChange && selectedStatus !== application.status) {
+    if (onStatusChange && selectedStatus !== application.status && application.id) {
       onStatusChange(application.id, selectedStatus);
       onClose();
     }
@@ -125,7 +128,7 @@ export default function ApplicationModal({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">電話番号</label>
-                <p className="text-gray-800">{application.phone}</p>
+                <p className="text-gray-800">{application.phoneNumber}</p>
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-900 mb-2">住所</label>
@@ -148,7 +151,7 @@ export default function ApplicationModal({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">申請日</label>
-                <p className="text-gray-800">{application.applicationDate || '2024年1月15日'}</p>
+                <p className="text-gray-800">{application.createdAt || '2024年1月15日'}</p>
               </div>
             </div>
 
@@ -178,7 +181,7 @@ export default function ApplicationModal({
               <label className="block text-sm font-medium text-gray-900 mb-2">事業内容</label>
               <div className="bg-gray-50 p-4 rounded-md">
                 <p className="text-gray-800 whitespace-pre-wrap">
-                  {application.businessDescription || `外壁塗装・屋根塗装を中心とした住宅リフォーム全般を手がけております。
+                  {application.businessContent || `外壁塗装・屋根塗装を中心とした住宅リフォーム全般を手がけております。
 創業30年の実績と信頼で、お客様の大切なお住まいを守ります。
 
 【主な事業内容】
@@ -197,7 +200,7 @@ export default function ApplicationModal({
               <label className="block text-sm font-medium text-gray-900 mb-2">アピールポイント</label>
               <div className="bg-gray-50 p-4 rounded-md">
                 <p className="text-gray-800 whitespace-pre-wrap">
-                  {application.appealPoints || `◆ 完全自社施工で安心の品質管理
+                  {application.strength || `◆ 完全自社施工で安心の品質管理
 ◆ 地域密着30年の信頼と実績
 ◆ 国家資格を持つ職人が多数在籍
 ◆ アフターフォロー体制充実（10年保証）

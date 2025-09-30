@@ -282,7 +282,7 @@ const ApplicationsView = () => {
           setIsModalOpen(false);
           setSelectedApplication(null);
         }}
-        application={selectedApplication}
+        application={selectedApplication || {}}
         onStatusChange={handleStatusChange}
       />
     </div>
