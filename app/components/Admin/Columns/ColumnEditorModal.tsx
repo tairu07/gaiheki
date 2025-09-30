@@ -305,6 +305,7 @@ export default function ColumnEditorModal({ isOpen, onClose, column, onSave }: C
                 {/* プレビュー */}
                 {thumbnail && (
                   <div className="relative w-full h-48 border border-gray-300 rounded-md overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={thumbnail}
                       alt="サムネイルプレビュー"

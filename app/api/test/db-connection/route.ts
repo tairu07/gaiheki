@@ -33,7 +33,7 @@ export async function GET() {
       success: false,
       status: 'disconnected',
       error: error instanceof Error ? error.message : 'Unknown error',
-      errorCode: (error as Error & { code?: string })?.code || 'UNKNOWN',
+      errorCode: (error as { code?: string })?.code || 'UNKNOWN',
       timestamp: new Date().toISOString(),
     }, { status: 500 });
   }
