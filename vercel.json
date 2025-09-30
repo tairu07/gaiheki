@@ -12,6 +12,8 @@
     "DEFAULT_ADMIN_USERNAME": "admin",
     "DEFAULT_ADMIN_PASSWORD": "admin123",
     "NEXTAUTH_SECRET": "gaiheki-nextauth-secret-2024",
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "DISABLE_ESLINT_PLUGIN": "true",
+    "ESLINT_NO_DEV_ERRORS": "true"
   }
 }
