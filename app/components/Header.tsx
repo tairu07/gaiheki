@@ -43,15 +43,6 @@ const Header = () => {
             <Link href="/partner-registration" className={getLinkClass('/partner-registration')}>
               加盟店様はこちら（登録）
             </Link>
-            <div className="flex items-center space-x-2">
-              <Link href="/auth/admin-login" className="text-gray-700 hover:text-orange-500 text-sm">
-                管理者
-              </Link>
-              <span className="text-gray-400">/</span>
-              <Link href="/auth/partner-login" className="text-gray-700 hover:text-orange-500 text-sm">
-                加盟店様
-              </Link>
-            </div>
           </nav>
 
           {/* 電話番号と相談ボタン */}
