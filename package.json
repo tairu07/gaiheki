@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" next build",
     "build:win": "set NODE_OPTIONS=--max-old-space-size=4096 && next build",
-    "start": "next start",
+    "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
     "prisma:db:push": "prisma db push",
